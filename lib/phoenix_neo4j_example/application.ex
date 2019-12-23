@@ -9,9 +9,10 @@ defmodule PhoenixNeo4jExample.Application do
     # List all child processes to be supervised
     children = [
       # Start the endpoint when the application starts
-      PhoenixNeo4jExampleWeb.Endpoint
+      PhoenixNeo4jExampleWeb.Endpoint,
       # Starts a worker by calling: PhoenixNeo4jExample.Worker.start_link(arg)
       # {PhoenixNeo4jExample.Worker, arg},
+      {Bolt.Sips, Application.get_env(:bolt_sips, Bolt)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

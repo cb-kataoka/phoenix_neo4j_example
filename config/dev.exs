@@ -65,3 +65,8 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
+
+config :bolt_sips, Bolt,
+  url: "bolt://neo4j:7687",
+  basic_auth: [username: "neo4j", password: "password"],
+  pool_size: 10

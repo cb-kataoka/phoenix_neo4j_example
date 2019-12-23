@@ -8,3 +8,8 @@ config :phoenix_neo4j_example, PhoenixNeo4jExampleWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+config :bolt_sips, Bolt,
+  url: "bolt://neo4j:7687",
+  basic_auth: [username: "neo4j", password: "password"],
+  pool_size: 10
