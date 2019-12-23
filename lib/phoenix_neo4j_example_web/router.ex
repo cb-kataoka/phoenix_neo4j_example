@@ -14,9 +14,10 @@ defmodule PhoenixNeo4jExampleWeb.Router do
   end
 
   scope "/", PhoenixNeo4jExampleWeb do
-    pipe_through :browser
+    pipe_through :api
 
-    get "/", PageController, :index
+    get "/healthcheck", HealthcheckController, :show
+    resources "/nodes", NodeController, only: [:index]
   end
 
   # Other scopes may use custom stacks.
