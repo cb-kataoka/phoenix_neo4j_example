@@ -1,4 +1,9 @@
 defmodule PhoenixNeo4jExample.Route do
+  alias Bolt.Sips, as: Neo
+  alias Bolt.Sips.Response
+  alias Bolt.Sips.Types.Path
+  alias Bolt.Sips.Types.Node
+
   @routes [
     %{from: "n0", time: 5, to: "n1"},
     %{from: "n1", time: 5, to: "n0"},
@@ -60,6 +65,24 @@ defmodule PhoenixNeo4jExample.Route do
     %{from: "n14", time: 20, to: "n18"}
   ]
 
+  def search(from, to, limit) do
+    query = cyper_query(:search, from, to, limit)
+    routes =
+      Neo.conn()
+      |> Neo.query!(query)
+      |> parse_search_result
+    {:ok, routes}
+  end
+
+  defp parse_search_result(%Response{records: records}) do
+    Enum.map(records, fn([_from, _to, %Path{nodes: nodes}, time]) ->
+      %{
+        node_ids: Enum.map(nodes, fn(%Node{properties: %{"id" => id}}) -> id end),
+        total_time: time
+      }
+    end)
+  end
+
   def cyper_query(:create) do
     "CREATE\n" <>
       (@routes
@@ -67,5 +90,15 @@ defmodule PhoenixNeo4jExample.Route do
         "(#{route[:from]})-[:WALK_TO {time:#{route[:time]}}]->(#{route[:to]})"
       end)
       |> Enum.join(",\n"))
+  end
+
+  defp cyper_query(:search, from, to, limit) do
+    ~s"""
+    MATCH (from:Node {id: '#{from}'}), (to:Node {id: '#{to}'}), path=((from)-[walk:WALK_TO*1..10]->(to))
+    RETURN from, to, path,
+    REDUCE(totalTime=0, w in walk | totalTime + w.time) as cost
+    ORDER BY cost
+    LIMIT #{limit}
+    """
   end
 end

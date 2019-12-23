@@ -18,6 +18,7 @@ defmodule PhoenixNeo4jExampleWeb.Router do
 
     get "/healthcheck", HealthcheckController, :show
     resources "/nodes", NodeController, only: [:index]
+    get "/routes/search", Route.SearchController, :index
   end
 
   # Other scopes may use custom stacks.
