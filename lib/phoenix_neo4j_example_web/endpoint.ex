@@ -42,5 +42,7 @@ defmodule PhoenixNeo4jExampleWeb.Endpoint do
     key: "_phoenix_neo4j_example_key",
     signing_salt: "TyTCOvMS"
 
+  plug CORSPlug
+
   plug PhoenixNeo4jExampleWeb.Router
 end
