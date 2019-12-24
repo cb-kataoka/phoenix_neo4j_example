@@ -65,8 +65,10 @@ defmodule PhoenixNeo4jExample.Route do
     %{from: "n14", time: 20, to: "n18"}
   ]
 
-  def search(from, to, limit) do
-    query = cyper_query(:search, from, to, limit)
+  @colors ["#ff5079", "#50d1ff", "#50ff7f"]
+
+  def search(from, to) do
+    query = cyper_query(:search, from, to)
     routes =
       Neo.conn()
       |> Neo.query!(query)
@@ -75,10 +77,13 @@ defmodule PhoenixNeo4jExample.Route do
   end
 
   defp parse_search_result(%Response{records: records}) do
-    Enum.map(records, fn([_from, _to, %Path{nodes: nodes}, time]) ->
+    records
+    |> Enum.with_index
+    |> Enum.map(fn({[_from, _to, %Path{nodes: nodes}, time], i}) ->
       %{
         node_ids: Enum.map(nodes, fn(%Node{properties: %{"id" => id}}) -> id end),
-        total_time: time
+        total_time: time,
+        color: @colors |> Enum.at(i)
       }
     end)
   end
@@ -92,13 +97,13 @@ defmodule PhoenixNeo4jExample.Route do
       |> Enum.join(",\n"))
   end
 
-  defp cyper_query(:search, from, to, limit) do
+  defp cyper_query(:search, from, to) do
     ~s"""
     MATCH (from:Node {id: '#{from}'}), (to:Node {id: '#{to}'}), path=((from)-[walk:WALK_TO*1..10]->(to))
     RETURN from, to, path,
     REDUCE(totalTime=0, w in walk | totalTime + w.time) as cost
     ORDER BY cost
-    LIMIT #{limit}
+    LIMIT 3
     """
   end
 end

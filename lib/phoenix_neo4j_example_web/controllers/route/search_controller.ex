@@ -3,8 +3,8 @@ defmodule PhoenixNeo4jExampleWeb.Route.SearchController do
 
   alias PhoenixNeo4jExample.Route
 
-  def index(conn, %{"from" => from, "to" => to, "limit" => limit}) do
-    with {:ok, routes} <- Route.search(from, to, limit) do
+  def index(conn, %{"from" => from, "to" => to}) do
+    with {:ok, routes} <- Route.search(from, to) do
       render(conn, "index.json", routes: routes)
     end
   end
